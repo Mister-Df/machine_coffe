@@ -1,16 +1,27 @@
-# React + Vite
+# Machine à café
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Application web React permettant de saisir des commandes de boissons et de consulter les instructions de préparation.
 
-Currently, two official plugins are available:
+## Démarrage
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```sh
+npm install
+npm run dev
+```
 
-## React Compiler
+Le serveur Vite est configuré sur le port `3000`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Utilisation
 
-## Expanding the Oxlint configuration
+- `/command` : choisir une boisson, saisir le nombre de sucres et le montant versé.
+- `/machine` : consulter les commandes acceptées et les messages transmis par la machine.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+| Boisson | Prix |
+|---|---:|
+| Thé (`TEA`) | 0,40 € |
+| Café (`COFFEE`) | 0,60 € |
+| Chocolat chaud (`CHOCOLATE`) | 0,50 € |
+
+Le nombre de sucres doit être compris entre 0 et 3; le chocolat chaud doit être sans sucre. Le paiement minimum dépend du prix de la boisson. Un paiement insuffisant est refusé et le message précise la somme manquante sur l’écran machine. Un paiement supérieur au prix permet de préparer la boisson et la monnaie est affichée.
+
+Les commandes et messages sont conservés dans le contexte React en mémoire; ils sont réinitialisés au rechargement de la page.
