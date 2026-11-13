@@ -5,12 +5,27 @@ const PRIX_BOISSONS_CENTIMES = {
     TEA: 40,
     COFFEE: 60,
     CHOCOLATE: 50,
+    'JUS D’ORANGE': 60,
+}
+
+const COMMANDES_TRES_CHAUDES = {
+    COFFEE: { sucre: 0, message: 'Ch::' },
+    CHOCOLATE: { sucre: 1, message: 'Hh:1:0' },
+    TEA: { sucre: 2, message: 'Th:2:0' },
 }
 
 const formaterEuros = (centimes) => new Intl.NumberFormat('fr-FR', {
     style: 'currency',
     currency: 'EUR',
 }).format(centimes / 100)
+
+function normaliserCommande(commande) {
+    const commandeNormalisee = commande.trim().toUpperCase()
+    if (['ORANGE', 'ORANGE JUS', "JUS D'ORANGE", 'JUS D’ORANGE'].includes(commandeNormalisee)) {
+        return 'JUS D’ORANGE'
+    }
+    return commandeNormalisee
+}
 
 export default function CommandClient() {
     const { ajouterCommande, ajouterMessageMachine } = useCommandes()
@@ -19,12 +34,26 @@ export default function CommandClient() {
     const [sucre, setSucre] = useState('')
     const [montant, setMontant] = useState('')
     const [erreur, setErreur] = useState('')
-    const commandeNormalisee = commande.trim().toUpperCase()
+    const [bienChaud, setBienChaud] = useState(false)
+    const commandeNormalisee = normaliserCommande(commande)
     const prixBoissonCentimes = PRIX_BOISSONS_CENTIMES[commandeNormalisee]
+    const estJusOrange = commandeNormalisee === 'JUS D’ORANGE'
+    const commandeTresChaude = COMMANDES_TRES_CHAUDES[commandeNormalisee]
+    const modeTresChaud = bienChaud && commandeTresChaude !== undefined
+    const sucreVerrouille = estJusOrange || modeTresChaud
+    const sucreAffiche = estJusOrange
+        ? '0'
+        : modeTresChaud
+            ? String(commandeTresChaude.sucre)
+            : sucre
 
     function handleSubmit(e) {
         e.preventDefault()
-        const nombreSucre = Number(sucre)
+        const nombreSucre = estJusOrange
+            ? 0
+            : modeTresChaud
+                ? commandeTresChaude.sucre
+                : Number(sucre)
         const prixCentimes = prixBoissonCentimes
 
         if (prixCentimes === undefined) {
@@ -32,12 +61,12 @@ export default function CommandClient() {
             return
         }
 
-        if (sucre === '' || !Number.isInteger(nombreSucre) || nombreSucre < 0 || nombreSucre > 3) {
+        if (!sucreVerrouille && (sucre === '' || !Number.isInteger(nombreSucre) || nombreSucre < 0 || nombreSucre > 3)) {
             setErreur('Commande rejetée : Le nombre de sucres doit être compris entre 0 et 3.')
             return
         }
 
-        if (commandeNormalisee === 'CHOCOLATE' && nombreSucre !== 0) {
+        if (!sucreVerrouille && commandeNormalisee === 'CHOCOLATE' && nombreSucre !== 0) {
             setErreur('Commande rejetée : le chocolat doit être commandé sans sucre.')
             return
         }
@@ -57,9 +86,13 @@ export default function CommandClient() {
             return
         }
 
-        const message = commandeNormalisee === 'CHOCOLATE'
-            ? 'H::'
-            : `${commandeNormalisee === 'TEA' ? 'T' : 'C'}:${nombreSucre}:0`
+        const message = estJusOrange
+            ? 'O::'
+            : modeTresChaud
+                ? commandeTresChaude.message
+                : commandeNormalisee === 'CHOCOLATE'
+                    ? 'H::'
+                    : `${commandeNormalisee === 'TEA' ? 'T' : 'C'}:${nombreSucre}:0`
 
         setErreur('')
         ajouterCommande({
@@ -73,6 +106,15 @@ export default function CommandClient() {
         setCommande('')
         setSucre('')
         setMontant('')
+        setBienChaud(false)
+    }
+
+    function handleCommandeChange(e) {
+        const valeur = e.target.value
+        setCommande(valeur)
+        if (!COMMANDES_TRES_CHAUDES[normaliserCommande(valeur)]) {
+            setBienChaud(false)
+        }
     }
 
     function handleMontantInvalid(e) {
@@ -97,14 +139,29 @@ export default function CommandClient() {
                             id="commande"
                             type="text"
                             value={commande}
-                            onChange={e => setCommande(e.target.value)}
+                            onChange={handleCommandeChange}
                             className="form-control h-10 bg-sky-200 px-2 outline-0"
                             required
                         />
                     </div>
                     <p className="text-amber-50">
-                        Prix : thé 0,40 € · café 0,60 € · chocolat chaud 0,50 €
+                        Prix : thé 0,40 € · café 0,60 € · chocolat chaud 0,50 € · jus d'orange 0,60 €
                     </p>
+                    <div className="text-amber-50">
+                        <input
+                            id="bien-chaud"
+                            type="checkbox"
+                            checked={modeTresChaud}
+                            disabled={commandeTresChaude === undefined}
+                            onChange={e => setBienChaud(e.target.checked)}
+                        />
+                        <label className="ms-2" htmlFor="bien-chaud">Servir bien chaud</label>
+                        {modeTresChaud && (
+                            <p>
+                                Le protocole très chaud fixe le sucre à {commandeTresChaude.sucre}.
+                            </p>
+                        )}
+                    </div>
                     <div>
                         <label className="text-amber-50" htmlFor="sucre">Nombre de carreaux de sucre</label>
                         <input
@@ -113,10 +170,11 @@ export default function CommandClient() {
                             min="0"
                             max="3"
                             step="1"
-                            value={sucre}
+                            value={sucreAffiche}
                             onChange={e => setSucre(e.target.value)}
+                            readOnly={sucreVerrouille}
                             className="form-control"
-                            required
+                            required={!sucreVerrouille}
                         />
                     </div>
                     <div>
