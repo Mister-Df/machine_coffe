@@ -14,7 +14,7 @@ Le serveur Vite est configuré sur le port `3000`.
 ## Utilisation
 
 - `/command` : choisir une boisson, saisir le nombre de sucres et le montant versé.
-- `/machine` : consulter les commandes acceptées et les messages transmis par la machine.
+- `/machine` : consulter les commandes acceptées et les messages transmis par la machine, puis générer ou imprimer un rapport de ventes.
 
 | Boisson | Prix |
 |---|---:|
@@ -28,3 +28,12 @@ Le nombre de sucres doit être compris entre 0 et 3; le chocolat chaud standard 
 Pour le thé, le café et le chocolat chaud, l'option « Servir bien chaud » envoie les commandes de firmware `Th:2:0`, `Ch::` et `Hh:1:0` respectivement. Le protocole fixe alors le sucre à 2 pour le thé, 0 pour le café et 1 pour le chocolat. Le jus d'orange utilise la commande `O::`.
 
 Les commandes et messages sont conservés dans le contexte React en mémoire; ils sont réinitialisés au rechargement de la page.
+
+Le rapport regroupe les unités vendues par boisson, les recettes par date et le total des recettes. Les recettes sont calculées au prix des boissons, sans compter la monnaie rendue. Les ventes et leurs dates restent en mémoire et ne survivent pas au rechargement.
+
+## Vérification
+
+```sh
+npm test
+npm run build
+```

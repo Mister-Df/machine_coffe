@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { getLocalDateKey } from '../utils/salesReport'
 
 const CommandesContext = createContext(null)
 
@@ -7,9 +8,10 @@ export function CommandesProvider({ children }) {
   const [messagesMachine, setMessagesMachine] = useState([])
 
   function ajouterCommande(commande) {
+    const dateVente = getLocalDateKey(new Date())
     setCommandes((commandesActuelles) => [
       ...commandesActuelles,
-      { ...commande, id: Date.now() },
+      { ...commande, id: Date.now(), dateVente },
     ])
   }
 

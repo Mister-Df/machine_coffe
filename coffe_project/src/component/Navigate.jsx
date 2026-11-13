@@ -7,7 +7,7 @@ export default function Navigate() {
             <div className=''>
                 <nav className='' >
                     <div className='bg-slate-200 w-[210px] px-2 py-3 rounded-md mx-auto'>
-                        <Link  to={'command'} className=' text-sm text-dark text-decoration-none'>Commander une taxe de thé</Link>
+                        <Link  to={'command'} className=' text-sm text-dark text-decoration-none'>Passer une commande</Link>
                     </div>
                 </nav>
             </div>
