@@ -8,7 +8,7 @@ test('reports zero sales when there are no accepted orders', () => {
       TEA: 0,
       COFFEE: 0,
       CHOCOLATE: 0,
-      'ORANGE JUICE': 0,
+      'JUS D’ORANGE': 0,
     },
     days: [],
     totalUnits: 0,
@@ -31,7 +31,7 @@ test('aggregates drinks by date and counts only the drink price as revenue', () 
       dateVente: '2026-11-12',
     },
     {
-      boisson: 'ORANGE JUICE',
+      boisson: 'JUS D’ORANGE',
       prixCentimes: 60,
       montantVerseCentimes: 100,
       dateVente: '2026-11-13',
@@ -43,7 +43,7 @@ test('aggregates drinks by date and counts only the drink price as revenue', () 
       TEA: 2,
       COFFEE: 0,
       CHOCOLATE: 0,
-      'ORANGE JUICE': 1,
+      'JUS D’ORANGE': 1,
     },
     days: [
       { date: '2026-11-12', units: 2, revenueCents: 80 },

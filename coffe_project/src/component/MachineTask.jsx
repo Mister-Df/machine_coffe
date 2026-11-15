@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState } from 'react'
 import { useCommandes } from '../context/CommandesContext'
 import { buildSalesReport } from '../utils/salesReport'
@@ -7,7 +6,7 @@ const LIBELLES_BOISSONS = {
   TEA: 'Thé',
   COFFEE: 'Café',
   CHOCOLATE: 'Chocolat chaud',
-  'ORANGE JUICE': "Jus d'orange",
+  'JUS D’ORANGE': "Jus d'orange",
 }
 
 const formaterEuros = (centimes) => new Intl.NumberFormat('fr-FR', {
@@ -26,65 +25,138 @@ export default function MachineTask() {
   }
 
   return (
-    <main className="container">
-      <h1 className="mb-4 text-2xl font-bold">Commandes à préparer</h1>
-      <button type="button" className="mb-4 rounded border px-3 py-2" onClick={genererRapport}>
-        Générer le rapport de ventes
-      </button>
+    <section aria-labelledby="machine-page-title">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">Vue d’ensemble</p>
+          <h1 className="page-title" id="machine-page-title">Espace machine</h1>
+          <p className="page-description">
+            Suivez les commandes en cours, consultez les messages et gardez un œil sur les ventes.
+          </p>
+        </div>
+        <div className="machine-actions">
+          <span className="machine-summary">
+            <span className="status-dot" aria-hidden="true" />
+            {commandes.length} commande{commandes.length === 1 ? '' : 's'}
+          </span>
+          <button type="button" className="primary-button" onClick={genererRapport}>
+            Générer le rapport <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </div>
+
       {rapport && (
-        <section className="mb-4 rounded border p-3" aria-label="Rapport des ventes">
-          <h2 className="text-xl font-semibold">Rapport des ventes</h2>
-          <h3 className="font-semibold">Unités vendues par boisson</h3>
-          <ul>
+        <section className="section-card report-card" aria-label="Rapport des ventes">
+          <div className="report-title-row">
+            <div>
+              <p className="eyebrow">Activité commerciale</p>
+              <h2>Rapport des ventes</h2>
+              <p>Résumé des ventes enregistrées par la machine.</p>
+            </div>
+            <button type="button" className="secondary-button" onClick={() => window.print()}>
+              <span aria-hidden="true">⎙</span> Imprimer le rapport
+            </button>
+          </div>
+
+          <div className="report-metrics">
+            <div className="report-metric">
+              <span>Recettes totales</span>
+              <strong>{formaterEuros(rapport.totalRevenueCents)}</strong>
+            </div>
+            <div className="report-metric">
+              <span>Jours avec ventes</span>
+              <strong>{rapport.days.length}</strong>
+            </div>
+          </div>
+
+          <h3 className="report-section-title">Unités vendues par boisson</h3>
+          <ul className="report-list">
             {Object.entries(rapport.unitsByDrink).map(([boisson, unites]) => (
-              <li key={boisson}>{LIBELLES_BOISSONS[boisson]} : {unites}</li>
+              <li key={boisson}>
+                <span>{LIBELLES_BOISSONS[boisson] || boisson}</span>
+                <strong>{unites} unité{unites === 1 ? '' : 's'}</strong>
+              </li>
             ))}
           </ul>
-          <p>Recettes totales : {formaterEuros(rapport.totalRevenueCents)}</p>
-          <h3 className="font-semibold">Recettes par date</h3>
+
+          <h3 className="report-section-title">Recettes par date</h3>
           {rapport.days.length === 0 ? (
-            <p>Aucune vente enregistrée.</p>
+            <p className="form-hint">Aucune vente enregistrée.</p>
           ) : (
-            <ul>
+            <ul className="report-list">
               {rapport.days.map(({ date, units, revenueCents }) => (
                 <li key={date}>
-                  {date.split('-').reverse().join('/')} : {units} unité(s), {formaterEuros(revenueCents)}
+                  <span>{date.split('-').reverse().join('/')}</span>
+                  <strong>{units} unité{units === 1 ? '' : 's'} · {formaterEuros(revenueCents)}</strong>
                 </li>
               ))}
             </ul>
           )}
-          <button type="button" className="rounded border px-3 py-2" onClick={() => window.print()}>
-            Imprimer le rapport
-          </button>
         </section>
       )}
-      {messagesMachine.length > 0 && (
-        <section aria-label="Messages de la machine">
-          <h2 className="text-xl font-semibold">Messages de la machine</h2>
-          <ul>
-            {messagesMachine.map((message) => (
-              <li key={message.id} role="alert">{message.texte}</li>
-            ))}
-          </ul>
+
+      <div className="machine-grid">
+        <section className="section-card panel-card" aria-label="Commandes à préparer">
+          <div className="panel-heading">
+            <h2>Commandes à préparer</h2>
+            <span className="count-badge" aria-label={`${commandes.length} commandes`}>{commandes.length}</span>
+          </div>
+          {commandes.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon" aria-hidden="true">☕</span>
+              <p>Aucune commande pour le moment. Les commandes validées apparaîtront ici.</p>
+            </div>
+          ) : (
+            <ul className="order-list">
+              {commandes.map((commande) => (
+                <li key={commande.id} className="order-item">
+                  <div className="order-item-top">
+                    <p className="order-drink">{LIBELLES_BOISSONS[commande.boisson] || commande.boisson}</p>
+                    <span className="order-price">{formaterEuros(commande.prixCentimes)}</span>
+                  </div>
+                  <div className="order-details">
+                    <p className="order-detail">
+                      <strong>Montant versé</strong>
+                      {formaterEuros(commande.montantVerseCentimes)}
+                    </p>
+                    {commande.monnaieCentimes > 0 && (
+                      <p className="order-detail">
+                        <strong>Monnaie rendue</strong>
+                        {formaterEuros(commande.monnaieCentimes)}
+                      </p>
+                    )}
+                    <p className="order-detail protocol-line">
+                      <strong>Instruction Drink Machine</strong>
+                      <code>{commande.message}</code>
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
-      )}
-      {commandes.length === 0 ? (
-        <p>Aucune commande pour le moment.</p>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {commandes.map((commande) => (
-            <li key={commande.id} className="rounded border p-3">
-              <strong>{commande.boisson}</strong>
-              <p>Prix : {formaterEuros(commande.prixCentimes)}</p>
-              <p>Montant versé : {formaterEuros(commande.montantVerseCentimes)}</p>
-              <p>Instruction Drink Machine : <code>{commande.message}</code></p>
-              {commande.monnaieCentimes > 0 && (
-                <p>Monnaie rendue : {formaterEuros(commande.monnaieCentimes)}</p>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+
+        <section className="section-card panel-card" aria-label="Messages de la machine">
+          <div className="panel-heading">
+            <h2>Messages de la machine</h2>
+            {messagesMachine.length > 0 && (
+              <span className="count-badge" aria-label={`${messagesMachine.length} messages`}>{messagesMachine.length}</span>
+            )}
+          </div>
+          {messagesMachine.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon" aria-hidden="true">✓</span>
+              <p>Tout fonctionne normalement. Les alertes et informations apparaîtront ici.</p>
+            </div>
+          ) : (
+            <ul className="message-list">
+              {messagesMachine.map((message) => (
+                <li key={message.id} className="message-item" role="alert">{message.texte}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    </section>
   )
 }

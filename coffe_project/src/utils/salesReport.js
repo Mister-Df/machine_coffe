@@ -1,4 +1,8 @@
-const BOISSONS = ['TEA', 'COFFEE', 'CHOCOLATE', 'ORANGE JUICE']
+const BOISSONS = ['TEA', 'COFFEE', 'CHOCOLATE', 'JUS D’ORANGE']
+
+function normaliserBoisson(boisson) {
+  return boisson === 'ORANGE JUICE' ? 'JUS D’ORANGE' : boisson
+}
 
 export function getLocalDateKey(date) {
   const year = date.getFullYear()
@@ -12,7 +16,8 @@ export function buildSalesReport(sales) {
   const salesByDay = new Map()
 
   for (const sale of sales) {
-    if (!Object.hasOwn(unitsByDrink, sale.boisson)) {
+    const boisson = normaliserBoisson(sale.boisson)
+    if (!Object.hasOwn(unitsByDrink, boisson)) {
       throw new Error(`Unknown drink in sales record: ${sale.boisson}`)
     }
     if (!Number.isInteger(sale.prixCentimes) || sale.prixCentimes < 0) {
@@ -22,7 +27,7 @@ export function buildSalesReport(sales) {
       throw new Error(`Invalid sale date for: ${sale.boisson}`)
     }
 
-    unitsByDrink[sale.boisson] += 1
+    unitsByDrink[boisson] += 1
     const dailySales = salesByDay.get(sale.dateVente) ?? {
       units: 0,
       revenueCents: 0,

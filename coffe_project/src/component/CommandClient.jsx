@@ -130,73 +130,112 @@ export default function CommandClient() {
     }
 
     return (
-        <div className="container">
-            <div className="w-full rounded-b-xl bg-amber-700 p-2">
-                <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-                    <div>
-                        <label className="text-amber-50" htmlFor="commande">Saisir une commande</label>
-                        <input
-                            id="commande"
-                            type="text"
-                            value={commande}
-                            onChange={handleCommandeChange}
-                            className="form-control h-10 bg-sky-200 px-2 outline-0"
-                            required
-                        />
-                    </div>
-                    <p className="text-amber-50">
-                        Prix : thé 0,40 € · café 0,60 € · chocolat chaud 0,50 € · jus d'orange 0,60 €
+        <section aria-labelledby="order-page-title">
+            <div className="page-heading">
+                <div>
+                    <p className="eyebrow">Votre pause café</p>
+                    <h1 className="page-title" id="order-page-title">À boire, comme vous aimez.</h1>
+                    <p className="page-description">
+                        Choisissez votre boisson, indiquez vos préférences et réglez votre commande en quelques instants.
                     </p>
-                    <div className="text-amber-50">
-                        <input
-                            id="bien-chaud"
-                            type="checkbox"
-                            checked={modeTresChaud}
-                            disabled={commandeTresChaude === undefined}
-                            onChange={e => setBienChaud(e.target.checked)}
-                        />
-                        <label className="ms-2" htmlFor="bien-chaud">Servir bien chaud</label>
-                        {modeTresChaud && (
-                            <p>
-                                Le protocole très chaud fixe le sucre à {commandeTresChaude.sucre}.
-                            </p>
-                        )}
-                    </div>
-                    <div>
-                        <label className="text-amber-50" htmlFor="sucre">Nombre de carreaux de sucre</label>
-                        <input
-                            id="sucre"
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                            value={sucreAffiche}
-                            onChange={e => setSucre(e.target.value)}
-                            readOnly={sucreVerrouille}
-                            className="form-control"
-                            required={!sucreVerrouille}
-                        />
-                    </div>
-                    <div>
-                        <label className="text-amber-50" htmlFor="montant">Montant versé (€)</label>
-                        <input
-                            id="montant"
-                            type="number"
-                            min={prixBoissonCentimes === undefined ? 0 : (prixBoissonCentimes / 100).toFixed(2)}
-                            step="0.01"
-                            value={montant}
-                            onChange={e => setMontant(e.target.value)}
-                            onInvalid={handleMontantInvalid}
-                            className="form-control"
-                            required
-                        />
-                    </div>
-                    {erreur && <p role="alert" className="text-white">{erreur}</p>}
-                    <button type="submit" className="rounded bg-sky-200 px-4 py-2 text-slate-900">
-                        Passer la commande
-                    </button>
-                </form>
+                </div>
             </div>
-        </div>
+
+            <div className="order-layout">
+                <section className="section-card order-card" aria-labelledby="order-form-title">
+                    <h2 className="card-heading" id="order-form-title">Composer ma commande</h2>
+                    <p className="card-subtitle">Complétez les champs ci-dessous pour préparer votre boisson.</p>
+
+                    <form onSubmit={handleSubmit} className="order-form">
+                        <div className="form-field">
+                            <label className="form-label" htmlFor="commande">Votre boisson</label>
+                            <input
+                                id="commande"
+                                type="text"
+                                value={commande}
+                                onChange={handleCommandeChange}
+                                className="form-control"
+                                placeholder="Ex. café, thé, chocolat ou jus d’orange"
+                                autoComplete="off"
+                                required
+                            />
+                            <p className="form-hint">Saisissez le nom de votre boisson préférée.</p>
+                        </div>
+
+                        <div className="hot-option">
+                            <input
+                                id="bien-chaud"
+                                type="checkbox"
+                                checked={modeTresChaud}
+                                disabled={commandeTresChaude === undefined}
+                                onChange={e => setBienChaud(e.target.checked)}
+                            />
+                            <div>
+                                <label htmlFor="bien-chaud">Servir bien chaud</label>
+                                <p>
+                                    {modeTresChaud
+                                        ? `Le protocole très chaud fixe le sucre à ${commandeTresChaude.sucre}.`
+                                        : 'Active le protocole très chaud pour le thé, le café et le chocolat.'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="form-field">
+                            <label className="form-label" htmlFor="sucre">Nombre de carreaux de sucre</label>
+                            <input
+                                id="sucre"
+                                type="number"
+                                min="0"
+                                max="3"
+                                step="1"
+                                value={sucreAffiche}
+                                onChange={e => setSucre(e.target.value)}
+                                readOnly={sucreVerrouille}
+                                className="form-control"
+                                required={!sucreVerrouille}
+                                aria-describedby="sucre-help"
+                            />
+                            <p className="form-hint" id="sucre-help">
+                                De 0 à 3 sucres. Le jus d’orange est servi sans sucre.
+                            </p>
+                        </div>
+
+                        <div className="form-field">
+                            <label className="form-label" htmlFor="montant">Montant versé (€)</label>
+                            <input
+                                id="montant"
+                                type="number"
+                                min={prixBoissonCentimes === undefined ? 0 : (prixBoissonCentimes / 100).toFixed(2)}
+                                step="0.01"
+                                value={montant}
+                                onChange={e => setMontant(e.target.value)}
+                                onInvalid={handleMontantInvalid}
+                                className="form-control"
+                                placeholder="0,00"
+                                required
+                            />
+                            <p className="form-hint">Le montant minimum s’actualise selon la boisson choisie.</p>
+                        </div>
+
+                        {erreur && <p role="alert" className="error-message">{erreur}</p>}
+                        <button type="submit" className="primary-button full-width">
+                            Confirmer la commande <span aria-hidden="true">→</span>
+                        </button>
+                    </form>
+                </section>
+
+                <aside className="section-card price-card" aria-labelledby="price-list-title">
+                    <p className="eyebrow">À la carte</p>
+                    <h2 className="card-heading" id="price-list-title">Les classiques</h2>
+                    <p className="card-subtitle">Des pauses simples, préparées à la demande.</p>
+                    <dl className="price-list">
+                        <div className="price-row"><dt>Thé</dt><dd><strong>0,40 €</strong></dd></div>
+                        <div className="price-row"><dt>Café</dt><dd><strong>0,60 €</strong></dd></div>
+                        <div className="price-row"><dt>Chocolat chaud</dt><dd><strong>0,50 €</strong></dd></div>
+                        <div className="price-row"><dt>Jus d’orange</dt><dd><strong>0,60 €</strong></dd></div>
+                    </dl>
+                </aside>
+            </div>
+        </section>
     )
 }
