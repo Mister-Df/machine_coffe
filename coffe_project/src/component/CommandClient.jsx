@@ -34,6 +34,7 @@ export default function CommandClient() {
     const [sucre, setSucre] = useState('')
     const [montant, setMontant] = useState('')
     const [erreur, setErreur] = useState('')
+    const [confirmation, setConfirmation] = useState('')
     const [bienChaud, setBienChaud] = useState(false)
     const commandeNormalisee = normaliserCommande(commande)
     const prixBoissonCentimes = PRIX_BOISSONS_CENTIMES[commandeNormalisee]
@@ -49,6 +50,7 @@ export default function CommandClient() {
 
     function handleSubmit(e) {
         e.preventDefault()
+        setConfirmation('')
         const nombreSucre = estJusOrange
             ? 0
             : modeTresChaud
@@ -95,6 +97,7 @@ export default function CommandClient() {
                     : `${commandeNormalisee === 'TEA' ? 'T' : 'C'}:${nombreSucre}:0`
 
         setErreur('')
+        setConfirmation(`Votre commande de ${commandeNormalisee} est prise en compte.`)
         ajouterCommande({
             boisson: commandeNormalisee,
             sucre: nombreSucre,
@@ -144,7 +147,7 @@ export default function CommandClient() {
             <div className="order-layout">
                 <section className="section-card order-card" aria-labelledby="order-form-title">
                     <h2 className="card-heading" id="order-form-title">Composer ma commande</h2>
-                    <p className="card-subtitle">Complétez les champs ci-dessous pour préparer votre boisson.</p>
+                    <p className="card-subtitle">Les champs marqués sont nécessaires pour préparer votre boisson.</p>
 
                     <form onSubmit={handleSubmit} className="order-form">
                         <div className="form-field">
@@ -218,6 +221,11 @@ export default function CommandClient() {
                         </div>
 
                         {erreur && <p role="alert" className="error-message">{erreur}</p>}
+                        {confirmation && (
+                            <p role="status" aria-live="polite" className="success-message">
+                                <span aria-hidden="true">✓ </span>{confirmation}
+                            </p>
+                        )}
                         <button type="submit" className="primary-button full-width">
                             Confirmer la commande <span aria-hidden="true">→</span>
                         </button>
@@ -229,13 +237,14 @@ export default function CommandClient() {
                     <h2 className="card-heading" id="price-list-title">Les classiques</h2>
                     <p className="card-subtitle">Des pauses simples, préparées à la demande.</p>
                     <dl className="price-list">
-                        <div className="price-row"><dt>Thé</dt><dd><strong>0,40 €</strong></dd></div>
-                        <div className="price-row"><dt>Café</dt><dd><strong>0,60 €</strong></dd></div>
-                        <div className="price-row"><dt>Chocolat chaud</dt><dd><strong>0,50 €</strong></dd></div>
-                        <div className="price-row"><dt>Jus d’orange</dt><dd><strong>0,60 €</strong></dd></div>
+                        <div className="price-row"><dt>TEA</dt><dd><strong>0,40 €</strong></dd></div>
+                        <div className="price-row"><dt>COFFEE</dt><dd><strong>0,60 €</strong></dd></div>
+                        <div className="price-row"><dt>CHOCOLATE</dt><dd><strong>0,50 €</strong></dd></div>
+                        <div className="price-row"><dt>JUS D’ORANGE</dt><dd><strong>0,60 €</strong></dd></div>
                     </dl>
                 </aside>
             </div>
         </section>
     )
 }
+

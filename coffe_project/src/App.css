@@ -340,6 +340,18 @@ input:focus-visible {
   line-height: 1.5;
 }
 
+.success-message {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #b9ddc7;
+  border-radius: 10px;
+  background: #eff9f2;
+  color: #23613e;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
 .primary-button,
 .secondary-button {
   display: inline-flex;
